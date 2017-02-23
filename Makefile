@@ -1,8 +1,11 @@
 CC=g++
 OBJDIR=objs
-SRCDIR=src
+SRCDIR=p2pvc/src
 INCDIR=$(SRCDIR)/inc
-CFLAGS+=-I$(INCDIR)
+
+ZT_INCLUDE=ztsdk/
+CFLAGS+=-I$(INCDIR) -I$(ZT_INCLUDE)
+
 platform=$(shell uname -s)
 
 SRCS=$(wildcard $(SRCDIR)/*.c)
@@ -10,21 +13,24 @@ OBJS=$(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
 CFLAGS+=-O2 -Wall -L.
 ifeq ($(platform), Linux)
-CFLAGS+=-DPA_USE_ALSA
+	CFLAGS+=-DPA_USE_ALSA
 else
-CFLAGS+=-DPA_USE_COREAUDIO
+	CFLAGS+=-DPA_USE_COREAUDIO
 endif
+
+ZTSDK_LIB=-Lztsdk -lzt
 CFLAGS+=`pkg-config --cflags opencv`
 CFLAGS_DEBUG+=-O0 -g3 -Werror -DDEBUG
-LDFLAGS+=-lpthread -lncurses -lportaudio -lm -lzt -ldl
+LDFLAGS+=-lpthread -lncurses -lportaudio -lm $(ZTSDK_LIB) -ldl
 LDFLAGS+=`pkg-config --libs opencv`
 
 all: cathode
+	cp ztsdk/libpicotcp.so ztsdk/tmp/libpicotcp.so
 
 .PHONY: all clean debug
 
 debug: CC := $(CC) $(CFLAGS_DEBUG)
-debug: clean cathod
+debug: clean cathode
 
 cathode: $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -43,6 +49,8 @@ $(OBJDIR):
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(wildcard $(INCDIR)/*.h) Makefile
 	$(CC) $(CFLAGS) $< -c -o $@
+
+install:
 
 clean:
 	rm -rf $(OBJDIR) audio video cathode

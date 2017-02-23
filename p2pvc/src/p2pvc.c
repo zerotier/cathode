@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
         nwid = "be37759dde4e30cb";
         break;
       case 'p':
-        home_path = ".";
+        home_path = "./ztsdk/tmp";
         break;
       case 'v':
         spawn_video = 1;
