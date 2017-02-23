@@ -1,0 +1,5 @@
+*.secret
+*.public
+ztsdk/tmp/networks.d
+ztsdk/tmp/iddb.d
+ztsdk/tmp/controller.d
