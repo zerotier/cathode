@@ -1,0 +1,1 @@
+When you start an application which uses the ZeroTierSDK, it must write a few config files for networks, identities, etc. In this example, this is where `cathode` will write these files.
