@@ -15,8 +15,8 @@ Cathode is a weakly-interacting coupling of two peices of software. First we sta
 
 Via ZeroTier-issued IP address:
 
-`cathode 10.6.6.8 -v -port 4545'
+`cathode 10.6.6.8 -v -port 4545`
 
 or, via ZeroTier identity:
 
-`cathode 92a0fe61ba -v -port 4545' 
+`cathode 92a0fe61ba -v -port 4545`
