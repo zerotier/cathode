@@ -32,7 +32,7 @@ or, via ZeroTier identity:
 
 # Recommendation
 
-We'd like to draw your attention to the Glass TTY VT220 font we've included that we think pairs well with cathode, installing this font and increasing your terminal's font size to about 24pt makes this whole experience much more immersive. Have fun!
+Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We think pairs well with cathode, installing this font and increasing your terminal's font size to about 24pt makes this whole experience much more immersive. Have fun!
 
 # Additional Notes
 
