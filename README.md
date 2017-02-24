@@ -30,6 +30,10 @@ or, via ZeroTier identity:
 
 `./cathode 92a0fe61ba -v -port 4545`
 
+# Recommendation
+
+We'd like to draw your attention to the Glass TTY VT220 font we've included that we think pairs well with cathode, installing this font and increasing your terminal's font size to about 24pt makes this whole experience much more immersive. Have fun!
+
 # Additional Notes
 
 This app is meant to be a simple demonstration of how you can add ZeroTier to your application. In this example there's only about ten points where modifications to `p2pvc` were needed. Since we want all network traffic to be handled by ZeroTier we swapped out the system's native calls with our own. 
