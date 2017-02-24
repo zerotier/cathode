@@ -156,6 +156,12 @@ int main(int argc, char **argv) {
     }
   }
 
+  // Start the ZeroTier background service
+  // Later on, when we make our first socket API call in p2plib.c, it will initialize
+  // an RPC interface between the application and the ZeroTier service.
+  //
+  // For this particular use case of ZeroTier we don't use a tranditional TAP driver but
+  // instead run everything through a user-mode TCP/IP stack in libpicotcp.so 
   zts_init_rpc(home_path.c_str(),nwid.c_str());
 
   if (!print_error) {
