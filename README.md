@@ -1,3 +1,10 @@
+              _    _                 _       
+             | |  | |               | |      
+   ___  __ _ | |_ | |__    ___    __| |  ___ 
+  / __|/ _` || __|| '_ \  / _ \  / _` | / _ \
+ | (__| (_| || |_ | | | || (_) || (_| ||  __/
+  \___|\__,_| \__||_| |_| \___/  \__,_| \___|
+
 # cathode
 A private P2P terminal video chat app
 
@@ -25,8 +32,6 @@ or, via ZeroTier identity:
 
 This app is meant to be a simple demonstration of how you can add ZeroTier to your application. In this example there's only about ten points where modifications to `p2pvc` were needed. Since we want all network traffic to be handled by ZeroTier we swapped out the system's native calls with our own. 
 
-If statically-linking isn't an option for your application, we've developed a number of workarounds including function interposition via LD_PRELOAD and SOCKS5 proxy. You can read more about this [here](https://github.com/zerotier/ZeroTierSDK/blob/master/docs/walkthrough.md)
-
 For instance, the `p2plib.c`'s `p2p_connect()` function, we see:
 
 ```
@@ -41,3 +46,6 @@ con->socket = zts_socket(curr_addr->ai_family, curr_addr->ai_socktype, curr_addr
 
 We also do this for every instance of `bind()`, `connect()`, `accept()`, `listen()`, etc. The substituted calls are designed to be perfectly compatible with each system's variation so substitution could be as simple as a find+replace.
 
+***
+
+If statically-linking isn't an option for your application, we've developed a number of workarounds including function interposition via LD_PRELOAD and SOCKS5 proxy. You can read more about this [here](https://github.com/zerotier/ZeroTierSDK/blob/master/docs/walkthrough.md)
