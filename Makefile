@@ -11,7 +11,7 @@ platform=$(shell uname -s)
 SRCS=$(wildcard $(SRCDIR)/*.c)
 OBJS=$(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
-CFLAGS+=-O2 -Wall -L.
+CFLAGS+=-Wall -L.
 ifeq ($(platform), Linux)
 	CFLAGS+=-DPA_USE_ALSA
 else
@@ -20,12 +20,11 @@ endif
 
 ZTSDK_LIB=-Lztsdk -lzt
 CFLAGS+=`pkg-config --cflags opencv`
-CFLAGS_DEBUG+=-O0 -g3 -Werror -DDEBUG
+CFLAGS_DEBUG+=-O0 -g -Werror -DDEBUG
 LDFLAGS+=-lpthread -lncurses -lportaudio -lm $(ZTSDK_LIB) -ldl
 LDFLAGS+=`pkg-config --libs opencv`
 
 all: cathode
-	cp ztsdk/libpicotcp.so ztsdk/tmp/libpicotcp.so
 
 .PHONY: all clean debug
 

@@ -47,8 +47,8 @@ void usage(FILE *stream) {
     "A point to point color terminal video chat.\n"
     "\n"
     "  -n <nwid>   ZeroTier Network ID (e.g. e5cd7abe1c2fd282)\n"
-    "  -p <path>   ZeroTier home directory (default is: ./). Stores keys, confs, etc."
-    
+    "  -p <path>   ZeroTier home directory (default is: ./). Stores keys, confs, etc.\n"
+    "\n"
     "  -v    Enable video chat.\n"
     "  -d    Dimensions of video in either [width]x[height] or [width]:[height]\n"
     "  -A    Audio port.\n"
@@ -93,17 +93,13 @@ int main(int argc, char **argv) {
   vopt.refresh_rate = 20;
   vopt.saturation = -1.0;
 
-  std::string nwid;
-  std::string home_path;
+  std::string nwid = "be37759dde4e30cb";
+  printf("nwid = %s\n", nwid.c_str());
+  std::string home_path = "./ztest_" + nwid;
+  printf("a2 = %s\n", argv[2]);
 
   while ((c = getopt (argc - 1, &(argv[1]), "bvnpd:A:V:heBI:E:s:c:a:r")) != -1) {
     switch (c) {
-      case 'n':
-        nwid = "be37759dde4e30cb";
-        break;
-      case 'p':
-        home_path = "./ztsdk/tmp";
-        break;
       case 'v':
         spawn_video = 1;
         break;
@@ -123,6 +119,25 @@ int main(int argc, char **argv) {
         break;
       case 'r':
         sscanf(optarg, "%lu", &vopt.refresh_rate);
+        break;
+      case 'Z':
+        /*
+        video_port = optarg;
+        
+        if(atoi(video_port) < 10)
+          padding = "000";
+        else if(atoi(video_port) < 100)
+          padding = "00";
+        else if(atoi(video_port) < 1000)
+          padding = "0";
+        // We will join ad-hoc network ffSSSSEEEE000000
+        // Where SSSS = start port
+        //       EEEE =   end port
+        padding = padding+video_port; // SSSS
+        // nwid = "ff" + padding + padding + "000000"; // ff + SSSS + EEEE + 000000
+        nwid = "be37759dde4e30cb";
+        printf("Communicating over ZeroTier ad-hoc network: %s\n", nwid.c_str());
+        */
         break;
       case 'B':
         vopt.render_type = 1;
