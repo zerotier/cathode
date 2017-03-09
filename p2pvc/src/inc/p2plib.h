@@ -15,7 +15,7 @@
 /* @brief A status for connections. */
 typedef struct {
   int socket;
-  struct sockaddr_in addr;
+  struct sockaddr_in6 addr;
   socklen_t addr_len;
 } connection_t;
 

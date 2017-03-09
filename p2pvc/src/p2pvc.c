@@ -93,12 +93,11 @@ int main(int argc, char **argv) {
   vopt.refresh_rate = 20;
   vopt.saturation = -1.0;
 
-  std::string nwid = "be37759dde4e30cb";
-  printf("nwid = %s\n", nwid.c_str());
-  std::string home_path = "./tmp";
-  printf("a2 = %s\n", argv[2]);
+  std::string padding = "";
+  std::string nwid = "";
+  std::string home_path = "./tmp"; // location of ZeroTier auth keys and config
 
-  while ((c = getopt (argc - 1, &(argv[1]), "bvnpd:A:V:heBI:E:s:c:a:r")) != -1) {
+  while ((c = getopt (argc - 1, &(argv[1]), "bvnpd:A::Z:V:heBI:E:s:c:a:r")) != -1) {
     switch (c) {
       case 'v':
         spawn_video = 1;
@@ -121,9 +120,7 @@ int main(int argc, char **argv) {
         sscanf(optarg, "%lu", &vopt.refresh_rate);
         break;
       case 'Z':
-        /*
         video_port = optarg;
-        
         if(atoi(video_port) < 10)
           padding = "000";
         else if(atoi(video_port) < 100)
@@ -134,10 +131,8 @@ int main(int argc, char **argv) {
         // Where SSSS = start port
         //       EEEE =   end port
         padding = padding+video_port; // SSSS
-        // nwid = "ff" + padding + padding + "000000"; // ff + SSSS + EEEE + 000000
-        nwid = "be37759dde4e30cb";
+        nwid = "ff" + padding + padding + "000000"; // ff + SSSS + EEEE + 000000
         printf("Communicating over ZeroTier ad-hoc network: %s\n", nwid.c_str());
-        */
         break;
       case 'B':
         vopt.render_type = 1;

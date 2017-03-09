@@ -80,56 +80,27 @@ int p2p_data(connection_t *con, void *data, size_t datasize,
  * @return 0 on success -1 on error.
  */
 int p2p_connect(char *server_name, char *server_port, connection_t *con) {
-  struct addrinfo protocol_spec;
-  struct addrinfo *possible_addrs, *curr_addr;
-  int err = 0;
-  memset(&protocol_spec, 0, sizeof(struct addrinfo));
-
-  protocol_spec.ai_family = AF_INET;
-  protocol_spec.ai_socktype = SOCK_DGRAM; /* Datagram socket */
-  protocol_spec.ai_flags = AI_PASSIVE; /* For wildcard IP address */
-  protocol_spec.ai_protocol = IPPROTO_UDP; /* UDP protocol */
-  protocol_spec.ai_canonname = NULL;
-  protocol_spec.ai_addr = NULL;
-  protocol_spec.ai_next = NULL;
-
-  if ((err = getaddrinfo(server_name, server_port,
-          &protocol_spec, &possible_addrs)) != 0) {
-    fprintf(stderr, "error in getaddrinfo %s\n", strerror(errno));
-    return (err);
-  }
-
-  curr_addr = possible_addrs;
-  while (curr_addr != NULL) {
-    con->socket = zts_socket(curr_addr->ai_family, curr_addr->ai_socktype, curr_addr->ai_protocol);
-    if (con->socket > 0) {
-      break;
-    }
-    curr_addr = curr_addr->ai_next;
-  }
-
-  if (curr_addr == NULL) {
-    fprintf(stderr, "unable to find a server in create_client\n");
-    freeaddrinfo(possible_addrs);
-    return (ENOTCONN);
-  }
-
+  
   int port;
   sscanf(server_port, "%d", &port);
-  con->addr.sin_family = curr_addr->ai_family;
-  con->addr.sin_port = htons(port);
 
-  if (curr_addr->ai_family == AF_INET) {
-    memcpy((void *)&con->addr.sin_addr, &((struct sockaddr_in *)curr_addr->ai_addr)->sin_addr, curr_addr->ai_addrlen);
-  } else {
-    fprintf(stderr, "Unable to use ai_family returned.");
-    freeaddrinfo(possible_addrs);
-    return (EINVAL);
-  }
+  struct sockaddr_in6 serv_addr;
+  struct hostent *server; 
+  port = atoi(server_port);
+  server = gethostbyname2(server_name,AF_INET6);
+  memset((char *) &serv_addr, 0, sizeof(serv_addr));
+  serv_addr.sin6_flowinfo = 0;
+  serv_addr.sin6_family = AF_INET6;
+  memmove((char *) &serv_addr.sin6_addr.s6_addr, (char *) server->h_addr, server->h_length);
+  serv_addr.sin6_port = htons(port);
 
-  /* TODO why does this need to be commented out? */
-  //freeaddrinfo(possible_addrs);
+  con->addr.sin6_family = AF_INET6;
+  con->addr.sin6_port = htons(port);
+
+  memcpy((void*)&con->addr.sin6_addr, &serv_addr.sin6_addr, server->h_length);
   con->addr_len = sizeof(con->addr);
+  
+  con->socket = zts_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 
   return 0;
 }
@@ -141,10 +112,10 @@ int p2p_connect(char *server_name, char *server_port, connection_t *con) {
  */
 int p2p_init(int port, int *sockfd) {
   int _sockfd_local;
-  struct sockaddr_in me;
+  struct sockaddr_in6 me;
 
   /* create socket */
-  if ((_sockfd_local = zts_socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+  if ((_sockfd_local = zts_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
     fprintf(stderr, "error in opening socket: %s\n", strerror(errno));
     return (errno);
   }
@@ -157,9 +128,18 @@ int p2p_init(int port, int *sockfd) {
 
   /* XXX: Make sure these fields are OK, possibly switch to variables.*/
   memset(&me, 0, sizeof(me));
-  me.sin_family = AF_INET;
-  me.sin_port = htons(port);
-  me.sin_addr.s_addr = htonl(INADDR_ANY);
+  me.sin6_family = AF_INET6;
+  me.sin6_port = htons(port);
+
+
+  struct sockaddr_in6 serv_addr;
+  struct hostent *server; 
+  server = gethostbyname2("::",AF_INET6);
+  memset((char *) &serv_addr, 0, sizeof(serv_addr));
+  serv_addr.sin6_flowinfo = 0;
+  serv_addr.sin6_family = AF_INET6;
+  memmove((char *) &me.sin6_addr.s6_addr, (char *)server->h_addr, server->h_length);
+
 
   if (zts_bind(_sockfd_local, (struct sockaddr *)&me, sizeof(me)) == -1) {
     fprintf(stderr, "error in binding socket: %s\n", strerror(errno));
@@ -301,7 +281,7 @@ int p2p_listener(connection_t **cons, size_t *conslen,
     /* Check if the connection we recieved from is in our array. */
     int i, new_connection = 1;
     for (i = 0; i < *conslen; i++) {
-      if (con.addr.sin_addr.s_addr == (*cons)[i].addr.sin_addr.s_addr) {
+      if (con.addr.sin6_addr.s6_addr == (*cons)[i].addr.sin6_addr.s6_addr) {
         new_connection = 0;
         break;
       }
