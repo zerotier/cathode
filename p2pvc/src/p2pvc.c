@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 
   std::string nwid = "be37759dde4e30cb";
   printf("nwid = %s\n", nwid.c_str());
-  std::string home_path = "./tmp" + nwid;
+  std::string home_path = "./tmp";
   printf("a2 = %s\n", argv[2]);
 
   while ((c = getopt (argc - 1, &(argv[1]), "bvnpd:A:V:heBI:E:s:c:a:r")) != -1) {
