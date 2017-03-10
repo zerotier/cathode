@@ -83,7 +83,6 @@ int p2p_connect(char *server_name, char *server_port, connection_t *con) {
   
   int port;
   sscanf(server_port, "%d", &port);
-
   struct sockaddr_in6 serv_addr;
   struct hostent *server; 
   port = atoi(server_port);
@@ -254,6 +253,7 @@ int p2p_listener(connection_t **cons, size_t *conslen,
     memset(buf, 0, max_packet_size);
     int recv_len = zts_recvfrom(socket, buf, max_packet_size, UDP_FLAGS, (struct sockaddr *)&(con.addr), &(con.addr_len));
 
+    fprintf(stderr, "recvfrom()=%d\n", recv_len);
 #ifdef __linux__
 /* Temporarily disable bandwidth.  Broken for OSX. */
     if (delta == -1) {
@@ -292,15 +292,17 @@ int p2p_listener(connection_t **cons, size_t *conslen,
     }
 
     /* Now invoke callbacks. */
-    if (new_connection) {
+    //if (new_connection) {
       /* Ignore new_callback if not defined. */
-      if (new_callback) {
-        (*new_callback)(&con, buf, recv_len);
-      }
-    } else {
-      (*callback)(&con, buf, recv_len);
-    }
-
+    //  if (new_callback) {
+    //    (*new_callback)(&con, buf, recv_len);
+    //  }
+    //} else {
+    //  (*callback)(&con, buf, recv_len);
+    //}
+    /* Commented out the above, we should add connections
+    as the original author intended once the prototype is finished */
+    (*callback)(&con, buf, recv_len);
   }
 
   return -1;
