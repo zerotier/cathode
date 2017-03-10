@@ -26,7 +26,7 @@ Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We thi
 
 Via ZeroTier-issued IP address:
 
-`./cathode 10.6.6.8 -v -port 4545`
+`./cathode fc87:7878:78e2:692c:d103::1 -Z 7878 -V 4545 -v -e`
 
 or, via ZeroTier identity:
 
