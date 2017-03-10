@@ -40,6 +40,10 @@
  @ingroup unix_src
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "pa_hostapi.h"
 
 PaError PaJack_Initialize( PaUtilHostApiRepresentation **hostApi, PaHostApiIndex index );
@@ -60,7 +64,7 @@ PaUtilHostApiInitializer *paHostApiInitializers[] =
 #ifdef __linux__
 
 #if PA_USE_ALSA
-//        PaAlsa_Initialize,
+        PaAlsa_Initialize,
 #endif
 
 #if PA_USE_OSS
@@ -92,7 +96,7 @@ PaUtilHostApiInitializer *paHostApiInitializers[] =
 #endif
 
 #if PA_USE_COREAUDIO
-        //PaMacCore_Initialize,
+        PaMacCore_Initialize,
 #endif
 
 #if PA_USE_SKELETON
@@ -101,3 +105,7 @@ PaUtilHostApiInitializer *paHostApiInitializers[] =
 
         0   /* NULL terminated array */
     };
+
+#ifdef __cplusplus
+}
+#endif

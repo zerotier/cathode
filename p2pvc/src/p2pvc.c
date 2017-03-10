@@ -7,14 +7,13 @@
 #include <locale.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <string>
 
 #include <audio.h>
 #include <video.h>
 
 #define DEFAULT_WIDTH 100
 #define DEFAULT_HEIGHT 40
-
-#include <string>
 
 // ZeroTier SDK
 #include "sdk.h"

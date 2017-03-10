@@ -1,4 +1,4 @@
-CC=g++
+CC=clang++
 OBJDIR=objs
 SRCDIR=p2pvc/src
 INCDIR=$(SRCDIR)/inc
@@ -11,7 +11,7 @@ platform=$(shell uname -s)
 SRCS=$(wildcard $(SRCDIR)/*.c)
 OBJS=$(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
-CFLAGS+=-Wall -L.
+CFLAGS+=-O2 -Wall
 ifeq ($(platform), Linux)
 	CFLAGS+=-DPA_USE_ALSA
 else
@@ -20,7 +20,7 @@ endif
 
 ZTSDK_LIB=-Lztsdk -lzt
 CFLAGS+=`pkg-config --cflags opencv`
-CFLAGS_DEBUG+=-O0 -g -Werror -DDEBUG
+CFLAGS_DEBUG+=-O0 -g3 -Werror -DDEBUG -c
 LDFLAGS+=-lpthread -lncurses -lportaudio -lm $(ZTSDK_LIB) -ldl
 LDFLAGS+=`pkg-config --libs opencv`
 
