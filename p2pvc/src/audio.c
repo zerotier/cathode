@@ -208,6 +208,7 @@ int start_audio(char *peer, char *port) {
   err = Pa_Initialize();
   if (err != paNoError) goto done;
 
+
   /* Set up output stream. */
   outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
   if (outputParameters.device == paNoDevice) {
@@ -237,6 +238,7 @@ int start_audio(char *peer, char *port) {
     fprintf(stderr,"Error: No default input device.\n");
     goto done;
   }
+
   inputParameters.channelCount = NUM_CHANNELS;
   inputParameters.sampleFormat = PA_SAMPLE_TYPE;
   inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultLowInputLatency;
@@ -264,6 +266,7 @@ int start_audio(char *peer, char *port) {
   }
 
   pthread_t thr;
+
   pthread_create(&thr, NULL, &dolisten, port);
 
   /* Start the streams. */

@@ -6,6 +6,7 @@ typedef struct {
   int height;
   int depth;
   int disp_bandwidth;
+  int disp_logo;
   int render_type;
   unsigned long refresh_rate;
   int intensity_threshold;

@@ -11,12 +11,14 @@
 
 #define COLOR_DEPTH       3
 #define BANDWIDTH_BUFLEN  64
+#define LOGO_BUFLEN       64
 
 static connection_t *cons;
 static size_t conslen;
 static pthread_mutex_t conslock;
 static CvCapture* cv_cap;
 static int disp_bandwidth = 0;
+static int disp_logo      = 0;
 static int width;
 static int height;
 static int depth = COLOR_DEPTH;
@@ -38,6 +40,12 @@ static void callback(connection_t *con, void *data, size_t length) {
     sprintf(bandstr, " Bandwidth : %f MB/s", 1000 * p2p_bandwidth());
     write_bandwidth(bandstr, strlen(bandstr), width, height);
   }
+  //if (disp_logo) {
+    char logostr[LOGO_BUFLEN];
+    memset(logostr, 0, LOGO_BUFLEN);
+    sprintf(logostr, "  Made possible with the ZeroTier SDK  ");
+    write_bandwidth(logostr, strlen(logostr), width, height);
+  //}
 }
 
 static void new_callback(connection_t *con, void *data, size_t datalen) {
@@ -57,6 +65,7 @@ static void *dolisten(void *args) {
   int socket;
   int port = atoi((char *)args);
   p2p_init(port, &socket);
+  fprintf(stderr, "p2p_init");
   p2p_listener((connection_t **)&cons, &conslen, &conslock, &callback, &new_callback, socket, width * height * depth);
   return NULL;
 }
@@ -66,6 +75,7 @@ int start_video(char *peer, char *port, vid_options_t *vopt) {
   height = GET_HEIGHT(vopt->height);
   render_type = vopt->render_type;
   disp_bandwidth = vopt->disp_bandwidth;
+  disp_logo = vopt->disp_logo;
 
   display_options_t dopt;
   memset(&dopt, 0, sizeof(display_options_t));
@@ -137,6 +147,7 @@ int main(int argc, char *argv[]) {
   vopt.width = 100;
   vopt.height = 40;
   vopt.disp_bandwidth = 0;
+  vopt.disp_logo = 0;
   return start_video(argv[1], "55556", &vopt);
 }
 #endif

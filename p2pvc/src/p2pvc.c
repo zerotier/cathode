@@ -18,12 +18,17 @@
 // ZeroTier SDK
 #include "sdk.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
   char *ipaddr;
   char *port;
 } network_options_t;
 
 void *spawn_audio_thread(void *args) {
+  fprintf(stderr, "spawn_audio_thread\n");
   network_options_t *netopts = (network_options_t*)args;
   start_audio(netopts->ipaddr, netopts->port);
   return NULL;
@@ -44,10 +49,6 @@ void usage(FILE *stream) {
   fprintf(stream,
     "Usage: p2pvc [-h] [server] [options]\n"
     "A point to point color terminal video chat.\n"
-    "\n"
-    "  -n <nwid>   ZeroTier Network ID (e.g. e5cd7abe1c2fd282)\n"
-    "  -p <path>   ZeroTier home directory (default is: ./). Stores keys, confs, etc.\n"
-    "\n"
     "  -v    Enable video chat.\n"
     "  -d    Dimensions of video in either [width]x[height] or [width]:[height]\n"
     "  -A    Audio port.\n"
@@ -59,6 +60,7 @@ void usage(FILE *stream) {
     "  -I    Set threshold for braille.\n"
     "  -E    Use an edge filter.\n"
     "  -a    Use custom ascii to print the video.\n"
+    "  -z    Display ZeroTier SDK watermark"
     "\n"
     "Report bugs to https://github.com/mofarrell/p2pvc/issues.\n"
   );
@@ -76,8 +78,8 @@ int main(int argc, char **argv) {
     usage(stdout);
     exit(0);
   }
-  char *audio_port = "55555";
-  char *video_port = "55556";
+  char *audio_port = (char*)"55555";
+  char *video_port = (char*)"55556";
   vid_options_t vopt;
   int spawn_video = 0, print_error = 0;
   int c;
@@ -96,7 +98,7 @@ int main(int argc, char **argv) {
   std::string nwid = "";
   std::string home_path = "./tmp"; // location of ZeroTier auth keys and config
 
-  while ((c = getopt (argc - 1, &(argv[1]), "bvnpd:A::Z:V:heBI:E:s:c:a:r")) != -1) {
+  while ((c = getopt (argc - 1, &(argv[1]), "bvnpdz:A::Z:V:heBI:E:s:c:a:r")) != -1) {
     switch (c) {
       case 'v':
         spawn_video = 1;
@@ -117,6 +119,9 @@ int main(int argc, char **argv) {
         break;
       case 'r':
         sscanf(optarg, "%lu", &vopt.refresh_rate);
+        break;
+      case 'z':
+        vopt.disp_logo = 1;
         break;
       case 'Z':
         video_port = optarg;
@@ -197,4 +202,8 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
 

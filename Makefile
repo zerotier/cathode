@@ -20,7 +20,7 @@ endif
 
 ZTSDK_LIB=-Lztsdk -lzt
 CFLAGS+=`pkg-config --cflags opencv`
-CFLAGS_DEBUG+=-O0 -g3 -Werror -DDEBUG -c
+CFLAGS_DEBUG+=-O0 -g3 -Werror -DDEBUG
 LDFLAGS+=-lpthread -lncurses -lportaudio -lm $(ZTSDK_LIB) -ldl
 LDFLAGS+=`pkg-config --libs opencv`
 

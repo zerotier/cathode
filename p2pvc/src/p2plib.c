@@ -13,15 +13,16 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "sdk.h"
 
 #define UDP_FLAGS         0
 #define BANDWIDTH_BUFLEN  1024
 
-static struct timespec prevPacket, currPacket;
-static long delta = -1;
-static unsigned int bandwidth_index;
+//static struct timespec prevPacket, currPacket;
+//static long delta = -1;
+//static unsigned int bandwidth_index;
 static double bandwidth_buf[BANDWIDTH_BUFLEN];
 
 /* @brief gives the bandwidth for a given packet size 
@@ -82,7 +83,6 @@ int p2p_data(connection_t *con, void *data, size_t datasize,
 int p2p_connect(char *server_name, char *server_port, connection_t *con) {
   
   int port;
-  sscanf(server_port, "%d", &port);
   struct sockaddr_in6 serv_addr;
   struct hostent *server; 
   port = atoi(server_port);
@@ -98,9 +98,8 @@ int p2p_connect(char *server_name, char *server_port, connection_t *con) {
 
   memcpy((void*)&con->addr.sin6_addr, &serv_addr.sin6_addr, server->h_length);
   con->addr_len = sizeof(con->addr);
-  
-  con->socket = zts_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 
+  con->socket = zts_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
   return 0;
 }
 
@@ -252,8 +251,8 @@ int p2p_listener(connection_t **cons, size_t *conslen,
   while (1) {
     memset(buf, 0, max_packet_size);
     int recv_len = zts_recvfrom(socket, buf, max_packet_size, UDP_FLAGS, (struct sockaddr *)&(con.addr), &(con.addr_len));
+    //fprintf(stderr, "recvfrom() (recv_len=%d, errno=%d)\n", recv_len, errno);
 
-    fprintf(stderr, "recvfrom()=%d\n", recv_len);
 #ifdef __linux__
 /* Temporarily disable bandwidth.  Broken for OSX. */
     if (delta == -1) {
@@ -270,7 +269,7 @@ int p2p_listener(connection_t **cons, size_t *conslen,
 
     /* Handle error UDP style (try again). */
     if (recv_len < 0) {
-      fprintf(stderr, "Recieve failed. errno: %d\n", errno);
+      //fprintf(stderr, "Recieve failed. errno: %d\n", errno);
       continue;
     }
 

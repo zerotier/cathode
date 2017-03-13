@@ -9,7 +9,7 @@
 WINDOW *main_screen;
 static int intensity_threshold = 25;
 static double saturation = 2.0;
-static char *ascii_values = " ..::--==+++***###%%%%%%%%@@@@@@@";
+static char *ascii_values = (char*)" ..::--==+++***###%%%%%%%%@@@@@@@";
 static int monochrome = 0;
 char gr; char gg; char gb;
 
@@ -68,9 +68,9 @@ void end_screen(void) {
 void saturate(int *r, int *g, int *b, double change) {
   double p = sqrt((*r)*(*r)*PR + (*g)*(*g)*PG + (*b)*(*b)*PB);
 
-  *r = abs(p + ((*r) - p) * change);
-  *g = abs(p + ((*g) - p) * change);
-  *b = abs(p + ((*b) - p) * change);
+  *r = fabs(p + ((*r) - p) * change);
+  *g = fabs(p + ((*g) - p) * change);
+  *b = fabs(p + ((*b) - p) * change);
 }
 
 /* allow us to directly map to the 216 colors ncurses makes available */
@@ -136,12 +136,12 @@ int draw_braille(char *data, int width, int y, int channels) {
     char braille[2];
     attron(COLOR_PAIR(color));
     if (y % 4 == 0) {
-      sprintf(braille, "%C", to_braille(0));
+      sprintf(braille, "%C", (wchar_t)to_braille(0));
     }
     if (intensity > intensity_threshold) {
-      sprintf(braille, "%C", add_pixel(mvinch(row, j / 2), 3 - (y % 4), 1 - (j % 2), 1));
+      sprintf(braille, "%C", (wchar_t)add_pixel(mvinch(row, j / 2), 3 - (y % 4), 1 - (j % 2), 1));
     } else {
-      sprintf(braille, "%C", add_pixel(mvinch(row, j / 2), 3 - (y % 4), 1 - (j % 2), 0));
+      sprintf(braille, "%C", (wchar_t)add_pixel(mvinch(row, j / 2), 3 - (y % 4), 1 - (j % 2), 0));
     }
     mvaddstr(row, j / 2, braille);
   }
