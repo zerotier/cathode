@@ -18,10 +18,6 @@
 // ZeroTier SDK
 #include "sdk.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct {
   char *ipaddr;
   char *port;
@@ -182,11 +178,13 @@ int main(int argc, char **argv) {
     int fd = open("/dev/null", O_WRONLY);
     dup2(fd, STDERR_FILENO);
   }
+  /*
   else
   {
     int fd = open("log.txt", O_WRONLY);
     dup2(fd, STDERR_FILENO);
   }
+  */
 
   if (spawn_video) {
     signal(SIGINT, all_shutdown);
@@ -202,8 +200,4 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
-
-#ifdef __cplusplus
-}
-#endif
 
