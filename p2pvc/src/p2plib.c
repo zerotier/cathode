@@ -20,9 +20,11 @@
 #define UDP_FLAGS         0
 #define BANDWIDTH_BUFLEN  1024
 
-//static struct timespec prevPacket, currPacket;
-//static long delta = -1;
-//static unsigned int bandwidth_index;
+#ifdef __linux__
+  static struct timespec prevPacket, currPacket;
+  static long delta = -1;
+  static unsigned int bandwidth_index;
+#endif
 static double bandwidth_buf[BANDWIDTH_BUFLEN];
 
 /* @brief gives the bandwidth for a given packet size 

@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
         sscanf(optarg, "%lf", &vopt.saturation);
         break;
       case 'c':
-        vopt.monochrome = 1;
-        sscanf(optarg, "%" SCNd8 ":%" SCNd8 ":%" SCNd8, &vopt.r, &vopt.g, &vopt.b);
+        //vopt.monochrome = 1;
+        //sscanf(optarg, "%" SCNd8 ":%" SCNd8 ":%" SCNd8, &vopt.r, &vopt.g, &vopt.b);
         break;
       case 'a':
         vopt.ascii_values = optarg;
