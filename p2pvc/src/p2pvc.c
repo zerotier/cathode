@@ -91,7 +91,12 @@ int main(int argc, char **argv) {
 
   std::string padding = "";
   std::string nwid = "";
-  std::string home_path = "/var/lib/ztsdk";
+
+  #ifdef __linux__
+    std::string home_path = "/home/cathode";
+  #else
+    std::string home_path = "/Users/Shared/cathode";
+  #endif
 
   while ((c = getopt (argc - 1, &(argv[1]), "bvnpdz:A::Z:V:heBI:E:s:c:a:r")) != -1) {
     switch (c) {
