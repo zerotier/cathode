@@ -1,9 +1,24 @@
+OSTYPE=$(shell uname -s)
+
+STACK_LIB=libpicotcp.so
+ZTSDK_LIB=libzt.a
+CATHODE_TMP=tmp/
+ZT_INCLUDE=ztsdk/
+
+ifeq ($(OSTYPE),Darwin)
+	STACK_LIB_PATH+=ztsdk/lib/darwin.$(STACK_LIB)
+	ZTSDK_LIB_PATH+=ztsdk/lib/darwin.$(ZTSDK_LIB)
+endif
+ifeq ($(OSTYPE),Linux)
+	STACK_LIB_PATH=ztsdk/lib/linux.$STACK_LIB
+	ZTSDK_LIB_PATH=ztsdk/lib/linux.$ZTSDK_LIB
+endif
+
 CC=clang++
 OBJDIR=objs
 SRCDIR=p2pvc/src
 INCDIR=$(SRCDIR)/inc
 
-ZT_INCLUDE=ztsdk/
 CFLAGS+=-I$(INCDIR) -I$(ZT_INCLUDE)
 
 platform=$(shell uname -s)
@@ -18,13 +33,14 @@ else
 	CFLAGS+=-DPA_USE_COREAUDIO
 endif
 
-ZTSDK_LIB=-Lztsdk -lzt
+ZTSDKLIB=-Lztsdk -lzt
+
 CFLAGS+=`pkg-config --cflags opencv`
 CFLAGS_DEBUG+=-O0 -g3 -Werror -DDEBUG
-LDFLAGS+=-lpthread -lncurses -lportaudio -lm $(ZTSDK_LIB) -ldl
+LDFLAGS+=-lpthread -lncurses -lportaudio -lm $(ZTSDKLIB) -ldl
 LDFLAGS+=`pkg-config --libs opencv`
 
-all: cathode
+all: configure cathode
 
 .PHONY: all clean debug
 
@@ -50,6 +66,11 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(wildcard $(INCDIR)/*.h) Makefile
 	$(CC) $(CFLAGS) $< -c -o $@
 
 install:
+
+# Copy libraries into correct dirs for build and runtime
+configure:
+	cp $(STACK_LIB_PATH) $(CATHODE_TMP)$(STACK_LIB)
+	cp $(ZTSDK_LIB_PATH) $(ZT_INCLUDE)$(ZTSDK_LIB)
 
 clean:
 	rm -rf $(OBJDIR) audio video cathode
