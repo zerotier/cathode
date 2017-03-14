@@ -56,7 +56,6 @@ void usage(FILE *stream) {
     "  -I    Set threshold for braille.\n"
     "  -E    Use an edge filter.\n"
     "  -a    Use custom ascii to print the video.\n"
-    "  -z    Display ZeroTier SDK watermark"
     "\n"
     "Report bugs to https://github.com/mofarrell/p2pvc/issues.\n"
   );
@@ -92,7 +91,7 @@ int main(int argc, char **argv) {
 
   std::string padding = "";
   std::string nwid = "";
-  std::string home_path = "./tmp"; // location of ZeroTier auth keys and config
+  std::string home_path = "/var/lib/ztsdk";
 
   while ((c = getopt (argc - 1, &(argv[1]), "bvnpdz:A::Z:V:heBI:E:s:c:a:r")) != -1) {
     switch (c) {
@@ -115,9 +114,6 @@ int main(int argc, char **argv) {
         break;
       case 'r':
         sscanf(optarg, "%lu", &vopt.refresh_rate);
-        break;
-      case 'z':
-        vopt.disp_logo = 1;
         break;
       case 'Z':
         video_port = optarg;
@@ -178,14 +174,12 @@ int main(int argc, char **argv) {
     int fd = open("/dev/null", O_WRONLY);
     dup2(fd, STDERR_FILENO);
   }
-  /*
   else
   {
     int fd = open("log.txt", O_WRONLY);
     dup2(fd, STDERR_FILENO);
   }
-  */
-
+   
   if (spawn_video) {
     signal(SIGINT, all_shutdown);
     pthread_t thr;

@@ -10,8 +10,8 @@ ifeq ($(OSTYPE),Darwin)
 	ZTSDK_LIB_PATH+=ztsdk/lib/darwin.$(ZTSDK_LIB)
 endif
 ifeq ($(OSTYPE),Linux)
-	STACK_LIB_PATH=ztsdk/lib/linux.$STACK_LIB
-	ZTSDK_LIB_PATH=ztsdk/lib/linux.$ZTSDK_LIB
+	STACK_LIB_PATH=ztsdk/lib/linux.$(STACK_LIB)
+	ZTSDK_LIB_PATH=ztsdk/lib/linux.$(ZTSDK_LIB)
 endif
 
 CC=clang++
