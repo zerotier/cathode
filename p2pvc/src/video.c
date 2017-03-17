@@ -65,7 +65,6 @@ static void *dolisten(void *args) {
   int socket;
   int port = atoi((char *)args);
   p2p_init(port, &socket);
-  fprintf(stderr, "p2p_init");
   p2p_listener((connection_t **)&cons, &conslen, &conslock, &callback, &new_callback, socket, width * height * depth);
   return NULL;
 }

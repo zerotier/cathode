@@ -18,6 +18,14 @@
 // ZeroTier SDK
 #include "sdk.h"
 
+#ifdef __linux__
+  std::string home_path = "/home/cathode";
+#else
+  std::string home_path = "/Users/Shared/cathode";
+#endif
+
+char *default_adhoc_port = "7878"; // totally arbitrary
+
 typedef struct {
   char *ipaddr;
   char *port;
@@ -43,7 +51,7 @@ void all_shutdown(int signal) {
 
 void usage(FILE *stream) {
   fprintf(stream,
-    "Usage: p2pvc [-h] [server] [options]\n"
+    "Usage: cathode [-h] [server] [options]\n"
     "A point to point color terminal video chat.\n"
     "  -v    Enable video chat.\n"
     "  -d    Dimensions of video in either [width]x[height] or [width]:[height]\n"
@@ -56,8 +64,11 @@ void usage(FILE *stream) {
     "  -I    Set threshold for braille.\n"
     "  -E    Use an edge filter.\n"
     "  -a    Use custom ascii to print the video.\n"
+    "\n\n  ---\n"
+    "\n-M                         Print (and/or generate) your ZeroTier ID\n"
+    "  -Z <nwid>                  Remote ZeroTier ID\n"
+    "  -N <nwid> -R <remote_ID>   Join ordinary ZT network and call ZeroTier ID\n"
     "\n"
-    "Report bugs to https://github.com/mofarrell/p2pvc/issues.\n"
   );
 }
 
@@ -77,8 +88,7 @@ int main(int argc, char **argv) {
   char *video_port = (char*)"55556";
   vid_options_t vopt;
   int spawn_video = 0, print_error = 0;
-  int c;
-  int width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
+  int c, width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
 
   setlocale(LC_ALL, "");
 
@@ -91,14 +101,11 @@ int main(int argc, char **argv) {
 
   std::string padding = "";
   std::string nwid = "";
+  std::string remote_devid;
+  char addr_str[128];
+  int join_adhoc = 0, display_my_id = 0, call_remote = 0;
 
-  #ifdef __linux__
-    std::string home_path = "/home/cathode";
-  #else
-    std::string home_path = "/Users/Shared/cathode";
-  #endif
-
-  while ((c = getopt (argc - 1, &(argv[1]), "bvnpdz:A::Z:V:heBI:E:s:c:a:r")) != -1) {
+  while ((c = getopt (argc - 1, &(argv[1]), "bivnpdz:A::Z:D:R:V:MheBI:E:s:c:a:r")) != -1) {
     switch (c) {
       case 'v':
         spawn_video = 1;
@@ -108,6 +115,13 @@ int main(int argc, char **argv) {
         break;
       case 'V':
         video_port = optarg;
+        break;
+      case 'M':
+        display_my_id = 1;
+        break;
+      case 'R':
+        remote_devid = optarg;
+        call_remote = 1;
         break;
       case 'd':
         sscanf(optarg, "%dx%d", &width, &height);
@@ -121,19 +135,14 @@ int main(int argc, char **argv) {
         sscanf(optarg, "%lu", &vopt.refresh_rate);
         break;
       case 'Z':
-        video_port = optarg;
-        if(atoi(video_port) < 10)
-          padding = "000";
-        else if(atoi(video_port) < 100)
-          padding = "00";
-        else if(atoi(video_port) < 1000)
-          padding = "0";
-        // We will join ad-hoc network ffSSSSEEEE000000
-        // Where SSSS = start port
-        //       EEEE =   end port
-        padding = padding+video_port; // SSSS
-        nwid = "ff" + padding + padding + "000000"; // ff + SSSS + EEEE + 000000
-        printf("Communicating over ZeroTier ad-hoc network: %s\n", nwid.c_str());
+        // Used as the video stream port AND the basis for the ad-hoc network ID
+        video_port = default_adhoc_port;
+        remote_devid = optarg;
+        join_adhoc = 1;
+        call_remote = 1;
+        break;
+      case 'i':
+        generate_address = 1;
         break;
       case 'B':
         vopt.render_type = 1;
@@ -155,16 +164,62 @@ int main(int argc, char **argv) {
       case 'a':
         vopt.ascii_values = optarg;
         break;
-      case 'h':
-        usage(stdout);
-        exit(0);
-        break;
       case 'e':
         print_error = 1;
+        break;
+      case 'h':
+        usage(stderr);
         break;
       default:
         break;
     }
+  }
+
+  // Print (or possible generate AND print) ZeroTier ID
+  if(display_my_id) {
+    char myID[10];
+    int res = -1;
+    // Attempt to read ZeroTier ID, if not present, generate new ID
+    while(res < 0) {
+      if((res = zts_get_device_id_from_file(home_path.c_str(), myID)) >= 0) {
+        fprintf(stderr, "You are %s\n", myID);
+        exit(0);
+      }
+      else {
+        fprintf(stderr, "Could not find identity, generating one now...\n");
+        fprintf(stderr, "User configs will be stored in: %s\n", home_path.c_str());
+        // An identity couldn't be found, we will now generate one for you
+        join_adhoc = 1;
+        nwid = "ff00000000000000";
+        zts_init_rpc(home_path.c_str(),nwid.c_str());
+        zts_stop_service();
+        zts_leave_network_soft(home_path.c_str(), "ff00000000000000");
+      } 
+    }
+  }
+
+  // Using the 'default_adhoc_port', create ad-hoc <nwid> and join it.
+  if(join_adhoc) {
+    // Assemble address
+    if(atoi(video_port) < 10)
+      padding = "000";
+    else if(atoi(video_port) < 100)
+      padding = "00";
+    else if(atoi(video_port) < 1000)
+      padding = "0";
+    // We will join ad-hoc network ffSSSSEEEE000000
+    // Where SSSS = start port
+    //       EEEE =   end port
+    padding = padding+video_port; // SSSS
+    nwid = "ff" + padding + padding + "000000"; // ff + SSSS + EEEE + 000000
+    fprintf(stderr, " - Joining ad-hoc 6PLANE ZeroTier network: %s\n", nwid.c_str());
+  }
+
+  if(call_remote) {
+    // Generate 6PLANE IPv6 address for remote based on given <devID>
+    zts_get_6plane_addr(peer, nwid.c_str(), remote_devid.c_str());
+    // zts_get_rfc4193_addr(peer, nwid.c_str(), remote_devid.c_str());
+    fprintf(stderr, " - Calling: %s\n", peer);
   }
 
   // Start the ZeroTier background service
@@ -173,18 +228,18 @@ int main(int argc, char **argv) {
   //
   // For this particular use case of ZeroTier we don't use a tranditional TAP driver but
   // instead run everything through a user-mode TCP/IP stack in libpicotcp.so 
+  fprintf(stderr, " - Starting ZeroTier (home_path=%s, nwid=%s)\n", home_path.c_str(), nwid.c_str());
   zts_init_rpc(home_path.c_str(),nwid.c_str());
 
   if (!print_error) {
     int fd = open("/dev/null", O_WRONLY);
     dup2(fd, STDERR_FILENO);
   }
-  else
-  {
+  else {
     int fd = open("log.txt", O_WRONLY);
     dup2(fd, STDERR_FILENO);
   }
-   
+
   if (spawn_video) {
     signal(SIGINT, all_shutdown);
     pthread_t thr;

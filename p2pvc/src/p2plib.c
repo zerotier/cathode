@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <time.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "sdk.h"
 
@@ -131,7 +132,6 @@ int p2p_init(int port, int *sockfd) {
   me.sin6_family = AF_INET6;
   me.sin6_port = htons(port);
 
-
   struct sockaddr_in6 serv_addr;
   struct hostent *server; 
   server = gethostbyname2("::",AF_INET6);
@@ -139,7 +139,6 @@ int p2p_init(int port, int *sockfd) {
   serv_addr.sin6_flowinfo = 0;
   serv_addr.sin6_family = AF_INET6;
   memmove((char *) &me.sin6_addr.s6_addr, (char *)server->h_addr, server->h_length);
-
 
   if (zts_bind(_sockfd_local, (struct sockaddr *)&me, sizeof(me)) == -1) {
     fprintf(stderr, "error in binding socket: %s\n", strerror(errno));
@@ -197,8 +196,11 @@ int p2p_send_conns(connection_t *con, connection_t *cons, size_t conslen) {
  * @return Negative value on error, 0 on success.
  */
 int p2p_send(connection_t *con, const void *buf, size_t buflen) {
-  return zts_sendto(con->socket, buf, buflen, UDP_FLAGS, (struct sockaddr *)&con->addr, con->addr_len);
-}
+  int n = zts_sendto(con->socket, buf, buflen, UDP_FLAGS, (struct sockaddr *)&con->addr, con->addr_len);
+  if(n)
+    fprintf(stderr, "sendto() n = %d\n", n);
+  return n;
+  }
 
 /* @brief Send data to all connections.
  * @param cons A reference to a connection array.
@@ -212,12 +214,10 @@ int p2p_broadcast(connection_t **cons, size_t *conslen, pthread_mutex_t *consmut
   if(consmutex) {
     pthread_mutex_lock(consmutex);
   }
-
   int i;
   for (i = 0; i < *conslen; i++) {
     p2p_send(&((*cons)[i]), buf, buflen);
   }
-
   if(consmutex) {
     pthread_mutex_unlock(consmutex);
   }
@@ -248,12 +248,12 @@ int p2p_listener(connection_t **cons, size_t *conslen,
   connection_t con;
   char buf[max_packet_size];
 
-
   /* Loop on recvfrom. */
   while (1) {
     memset(buf, 0, max_packet_size);
     int recv_len = zts_recvfrom(socket, buf, max_packet_size, UDP_FLAGS, (struct sockaddr *)&(con.addr), &(con.addr_len));
-    //fprintf(stderr, "recvfrom() (recv_len=%d, errno=%d)\n", recv_len, errno);
+    if(recv_len>0)
+      fprintf(stderr, "recvfrom() (recv_len=%d, errno=%d)\n", recv_len, errno);
 
 #ifdef __linux__
 /* Temporarily disable bandwidth.  Broken for OSX. */
@@ -271,7 +271,7 @@ int p2p_listener(connection_t **cons, size_t *conslen,
 
     /* Handle error UDP style (try again). */
     if (recv_len < 0) {
-      //fprintf(stderr, "Recieve failed. errno: %d\n", errno);
+      fprintf(stderr, "Recieve failed. errno: %d\n", errno);
       continue;
     }
 
@@ -279,7 +279,6 @@ int p2p_listener(connection_t **cons, size_t *conslen,
       pthread_mutex_lock(consmutex);
     }
 
-    /* Check if the connection we recieved from is in our array. */
     int i, new_connection = 1;
     for (i = 0; i < *conslen; i++) {
       if (con.addr.sin6_addr.s6_addr == (*cons)[i].addr.sin6_addr.s6_addr) {
@@ -294,7 +293,7 @@ int p2p_listener(connection_t **cons, size_t *conslen,
 
     /* Now invoke callbacks. */
     //if (new_connection) {
-      /* Ignore new_callback if not defined. */
+    //  /* Ignore new_callback if not defined. */
     //  if (new_callback) {
     //    (*new_callback)(&con, buf, recv_len);
     //  }
