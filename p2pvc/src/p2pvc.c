@@ -141,9 +141,6 @@ int main(int argc, char **argv) {
         join_adhoc = 1;
         call_remote = 1;
         break;
-      case 'i':
-        generate_address = 1;
-        break;
       case 'B':
         vopt.render_type = 1;
         break;
