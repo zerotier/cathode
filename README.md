@@ -24,15 +24,15 @@ Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We thi
 
 # Usage
 
-Via ZeroTier-issued IP address:
+Generate ID (or display a previously generated ID)
 
-`./cathode fc87:7878:78e2:692c:d103::1 -Z 7878 -V 4545 -v -e`
+`cathode -M`
 
-or, via ZeroTier identity:
+If you have a friend's ID you can connect to them no the same LAN via:
 
-`./cathode 92a0fe61ba -v -port 4545`
+`cathode -v -Z <id>`
 
-# Additional Notes
+# Notes
 
 This app is meant to be a simple demonstration of how you can add ZeroTier to your application. In this example there's only about ten points where modifications to `p2pvc` were needed. Since we want all network traffic to be handled by ZeroTier we swapped out the system's native calls with our own. 
 
