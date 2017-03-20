@@ -10,11 +10,13 @@ ifeq ($(OSTYPE),Darwin)
 	STACK_LIB_PATH+=ztsdk/lib/darwin.$(STACK_LIB)
 	ZTSDK_LIB_PATH+=ztsdk/lib/darwin.$(ZTSDK_LIB)
 	ZTSDK_INSTALL_DIR="/Users/Shared/cathode/"
+	ZTSDK_NETWORK_DIR=$(ZTSDK_INSTALL_DIR)networks.d/
 endif
 ifeq ($(OSTYPE),Linux)
 	STACK_LIB_PATH=ztsdk/lib/linux.$(STACK_LIB)
 	ZTSDK_LIB_PATH=ztsdk/lib/linux.$(ZTSDK_LIB)
 	ZTSDK_INSTALL_DIR="/home/cathode/"
+	ZTSDK_NETWORK_DIR=$(ZTSDK_INSTALL_DIR)networks.d/
 endif
 
 CC=clang++
@@ -66,7 +68,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(wildcard $(INCDIR)/*.h) Makefile
 	$(CC) $(CFLAGS) $< -c -o $@
 
 install:
-	mkdir -p $(ZTSDK_INSTALL_DIR)
+	mkdir -p $(ZTSDK_NETWORK_DIR)
 	cp -f $(ZT_INCLUDE)$(STACK_LIB) $(ZTSDK_INSTALL_DIR)$(STACK_LIB)
 
 # Copy libraries into correct dirs for build and runtime
