@@ -47,8 +47,8 @@ static void callback(connection_t *con, void *data, size_t length) {
   sprintf(logostr, " Made possible with the ZeroTier SDK ");
 
   // TODO
-  char *your_id =  "aAaAaAaAaA";
-  char *their_id = "BbBbBbBbBb";
+  char *your_id =  (char*)"aAaAaAaAaA";
+  char *their_id = (char*)"BbBbBbBbBb";
   char contact_str[LOGO_BUFLEN*2];
   memset(contact_str, 0, LOGO_BUFLEN*2);
   sprintf(contact_str, "%s - You (%s) are talking to (%s) ", logostr, your_id, their_id);

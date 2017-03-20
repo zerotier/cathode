@@ -24,7 +24,7 @@
   std::string home_path = "/Users/Shared/cathode";
 #endif
 
-char *default_adhoc_port = "7878"; // totally arbitrary
+char *default_adhoc_port = (char*)"7878"; // totally arbitrary
 
 typedef struct {
   char *ipaddr;
@@ -68,7 +68,8 @@ void usage(FILE *stream) {
     "\n  ---\n\n"
     "  -M                         Print (and/or generate) your ZeroTier ID\n"
     "  -Z <nwid>                  Remote ZeroTier ID\n"
-    "  -N <nwid> -R <remote_ID>   Join ordinary ZT network and call ZeroTier ID\n"
+    "  -N <nwid> -R <remote_ID>   Join conventional ZT network and call ZeroTier ID\n"
+    "  -N <nwid> -S <remote_IP>   Join conventional ZT network and call IP address\n"
     "\n"
   );
 }
@@ -103,10 +104,9 @@ int main(int argc, char **argv) {
   std::string padding = "";
   std::string nwid = "";
   std::string remote_devid;
-  char addr_str[128];
-  int join_adhoc = 0, display_my_id = 0, call_remote = 0;
+  int join_adhoc = 0, display_my_id = 0, call_remote_id = 0, call_remote_ip = 0, conventional_zt_network = 0;
 
-  while ((c = getopt (argc - 1, &(argv[1]), "byvnpdz:A::Z:D:R:V:MheBI:E:s:c:a:r")) != -1) {
+  while ((c = getopt (argc, &(argv[0]), "byvnpdz:A::Z:D:N:S:R:V:MheBI:E:s:c:a:r")) != -1) {
     switch (c) {
       case 'v':
         spawn_video = 1;
@@ -120,9 +120,17 @@ int main(int argc, char **argv) {
       case 'M':
         display_my_id = 1;
         break;
+      case 'N':
+        nwid = optarg;
+        conventional_zt_network = 1;
+        break;
       case 'R':
         remote_devid = optarg;
-        call_remote = 1;
+        call_remote_id = 1;
+        break;
+      case 'S':
+        peer = optarg;
+        call_remote_ip = 1;
         break;
       case 'd':
         sscanf(optarg, "%dx%d", &width, &height);
@@ -140,7 +148,7 @@ int main(int argc, char **argv) {
         video_port = default_adhoc_port;
         remote_devid = optarg;
         join_adhoc = 1;
-        call_remote = 1;
+        call_remote_id = 1;
         break;
       case 'B':
         vopt.render_type = 1;
@@ -177,10 +185,9 @@ int main(int argc, char **argv) {
     }
   }
 
-  fprintf(stderr, " - video port = %s\n", video_port);
-  fprintf(stderr, " - audio port = %s\n", audio_port);
+  // BEGIN ZEROTIER INTEGRATION
 
-  // Print (or possible generate AND print) ZeroTier ID
+  // Print (or generate AND print) ZeroTier ID
   if(display_my_id) {
     char myID[10];
     int res = -1;
@@ -191,8 +198,8 @@ int main(int argc, char **argv) {
         exit(0);
       }
       else {
-        fprintf(stderr, "Could not find identity, generating one now...\n");
-        fprintf(stderr, "User configs will be stored in: %s\n", home_path.c_str());
+        fprintf(stderr, "Generating new identity...\n");
+        fprintf(stderr, "Configs will be stored in: %s\n", home_path.c_str());
         // An identity couldn't be found, we will now generate one for you
         join_adhoc = 1;
         nwid = "ff00000000000000";
@@ -201,6 +208,7 @@ int main(int argc, char **argv) {
         zts_leave_network_soft(home_path.c_str(), "ff00000000000000");
       } 
     }
+    exit(0);
   }
 
   // Using the 'default_adhoc_port', create ad-hoc <nwid> and join it.
@@ -220,13 +228,6 @@ int main(int argc, char **argv) {
     fprintf(stderr, " - Joining ad-hoc 6PLANE ZeroTier network: %s\n", nwid.c_str());
   }
 
-  if(call_remote) {
-    // Generate 6PLANE IPv6 address for remote based on given <devID>
-    zts_get_6plane_addr(peer, nwid.c_str(), remote_devid.c_str());
-    // zts_get_rfc4193_addr(peer, nwid.c_str(), remote_devid.c_str());
-    fprintf(stderr, " - Calling: %s\n", peer);
-  }
-
   // Start the ZeroTier background service
   // Later on, when we make our first socket API call in p2plib.c, it will initialize
   // an RPC interface between the application and the ZeroTier service.
@@ -235,6 +236,25 @@ int main(int argc, char **argv) {
   // instead run everything through a user-mode TCP/IP stack in libpicotcp.so 
   fprintf(stderr, " - Starting ZeroTier (home_path=%s, nwid=%s)\n", home_path.c_str(), nwid.c_str());
   zts_init_rpc(home_path.c_str(),nwid.c_str());
+
+  if(call_remote_id) {
+    // Generate 6PLANE IPv6 address for remote based on given <devID>
+    zts_get_6plane_addr(peer, nwid.c_str(), remote_devid.c_str());
+  }
+  fprintf(stderr, " - Calling: %s\n", peer);
+
+  // Peers
+  /*
+  char newpeer[64];
+  if(conventional_zt_network) {
+    int peer_count = zts_get_peer_address(newpeer, remote_devid.c_str());
+  }
+  fprintf(stderr, "peer_address = %s\n", newpeer);
+  int peer_count = zts_get_peer_count();
+  fprintf(stderr, "peer_count = %d\n", peer_count);
+  */
+
+  // END ZEROTIER INTEGRATION
 
   if (!print_error) {
     int fd = open("/dev/null", O_WRONLY);
