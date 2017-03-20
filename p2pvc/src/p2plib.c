@@ -196,10 +196,7 @@ int p2p_send_conns(connection_t *con, connection_t *cons, size_t conslen) {
  * @return Negative value on error, 0 on success.
  */
 int p2p_send(connection_t *con, const void *buf, size_t buflen) {
-  int n = zts_sendto(con->socket, buf, buflen, UDP_FLAGS, (struct sockaddr *)&con->addr, con->addr_len);
-  //if(n)
-  //  fprintf(stderr, "sendto() n = %d\n", n);
-  return n;
+  return zts_sendto(con->socket, buf, buflen, UDP_FLAGS, (struct sockaddr *)&con->addr, con->addr_len);
   }
 
 /* @brief Send data to all connections.
@@ -252,8 +249,6 @@ int p2p_listener(connection_t **cons, size_t *conslen,
   while (1) {
     memset(buf, 0, max_packet_size);
     int recv_len = zts_recvfrom(socket, buf, max_packet_size, UDP_FLAGS, (struct sockaddr *)&(con.addr), &(con.addr_len));
-    //if(recv_len>0)
-    //  fprintf(stderr, "recvfrom() (recv_len=%d, errno=%d)\n", recv_len, errno);
 
 #ifdef __linux__
 /* Temporarily disable bandwidth.  Broken for OSX. */
