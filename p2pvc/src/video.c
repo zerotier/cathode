@@ -40,12 +40,18 @@ static void callback(connection_t *con, void *data, size_t length) {
     sprintf(bandstr, " Bandwidth : %f MB/s", 1000 * p2p_bandwidth());
     write_bandwidth(bandstr, strlen(bandstr), width, height);
   }
-  //if (disp_logo) {
-    char logostr[LOGO_BUFLEN];
-    memset(logostr, 0, LOGO_BUFLEN);
-    sprintf(logostr, "  Made possible with the ZeroTier SDK  ");
-    write_bandwidth(logostr, strlen(logostr), width, height);
-  //}
+
+  // Print ZT watermark and ZT device IDs
+  char logostr[LOGO_BUFLEN];
+  memset(logostr, 0, LOGO_BUFLEN);
+  sprintf(logostr, " Made possible with the ZeroTier SDK ");
+
+  char *your_id =  "a2e45f789f";
+  char *their_id = "1f34a6ea9b";
+  char contact_str[LOGO_BUFLEN*2];
+  memset(contact_str, 0, LOGO_BUFLEN*2);
+  sprintf(contact_str, "%s - You (%s) are talking to (%s) ", logostr, your_id, their_id);
+  write_bandwidth(contact_str, strlen(contact_str), width, height);
 }
 
 static void new_callback(connection_t *con, void *data, size_t datalen) {

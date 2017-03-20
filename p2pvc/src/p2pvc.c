@@ -51,8 +51,8 @@ void all_shutdown(int signal) {
 
 void usage(FILE *stream) {
   fprintf(stream,
-    "Usage: cathode [-h] [server] [options]\n"
-    "A point to point color terminal video chat.\n"
+    "\nUsage: cathode [-h] [server] [options]\n"
+    "\nA point to point color terminal video chat.\n"
     "  -v    Enable video chat.\n"
     "  -d    Dimensions of video in either [width]x[height] or [width]:[height]\n"
     "  -A    Audio port.\n"
@@ -64,8 +64,9 @@ void usage(FILE *stream) {
     "  -I    Set threshold for braille.\n"
     "  -E    Use an edge filter.\n"
     "  -a    Use custom ascii to print the video.\n"
-    "\n\n  ---\n"
-    "\n-M                         Print (and/or generate) your ZeroTier ID\n"
+    "  -y    About info\n"
+    "\n  ---\n\n"
+    "  -M                         Print (and/or generate) your ZeroTier ID\n"
     "  -Z <nwid>                  Remote ZeroTier ID\n"
     "  -N <nwid> -R <remote_ID>   Join ordinary ZT network and call ZeroTier ID\n"
     "\n"
@@ -84,8 +85,8 @@ int main(int argc, char **argv) {
     usage(stdout);
     exit(0);
   }
-  char *audio_port = (char*)"55555";
-  char *video_port = (char*)"55556";
+  char *audio_port = (char*)"8888";
+  char *video_port = (char*)"7878";
   vid_options_t vopt;
   int spawn_video = 0, print_error = 0;
   int c, width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
@@ -105,7 +106,7 @@ int main(int argc, char **argv) {
   char addr_str[128];
   int join_adhoc = 0, display_my_id = 0, call_remote = 0;
 
-  while ((c = getopt (argc - 1, &(argv[1]), "bivnpdz:A::Z:D:R:V:MheBI:E:s:c:a:r")) != -1) {
+  while ((c = getopt (argc - 1, &(argv[1]), "byvnpdz:A::Z:D:R:V:MheBI:E:s:c:a:r")) != -1) {
     switch (c) {
       case 'v':
         spawn_video = 1;
@@ -161,6 +162,10 @@ int main(int argc, char **argv) {
       case 'a':
         vopt.ascii_values = optarg;
         break;
+      case 'y':
+        fprintf(stderr, "Cathode (based on p2pvc) - By ZeroTier, Inc.\n");
+        exit(0);
+        break;
       case 'e':
         print_error = 1;
         break;
@@ -171,6 +176,9 @@ int main(int argc, char **argv) {
         break;
     }
   }
+
+  fprintf(stderr, " - video port = %s\n", video_port);
+  fprintf(stderr, " - audio port = %s\n", audio_port);
 
   // Print (or possible generate AND print) ZeroTier ID
   if(display_my_id) {
