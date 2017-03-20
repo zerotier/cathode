@@ -28,9 +28,15 @@ Generate ID (or display a previously generated ID)
 
 `cathode -M`
 
-If you have a friend's ID you can connect to them no the same LAN via:
+If you have a friend's ZeroTier ID or ZeroTier IP address you can connect to them via:
 
 `cathode -v -Z <id>`
+`cathode -v`-N <nwid> -R <id>`
+`cathode -v -N <nwid> -S <ip-address>`
+
+Where `-v` is to enable video (as opposed to only audio)
+
+***
 
 # Notes
 
