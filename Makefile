@@ -3,20 +3,22 @@ OSTYPE=$(shell uname -s)
 STACK_LIB=libpicotcp.so
 ZTSDK_LIB=libzt.a
 ZT_INCLUDE=ztsdk/
-ZTSDK_INSTALL_DIR=/var/lib/ztsdk/
 ZTSDKLIB=-Lztsdk -lzt
+
+CONFIG_INSTALL_DIR=/var/lib/ztsdk
+BIN_INSTALL_DIR=/usr/local/bin
 
 ifeq ($(OSTYPE),Darwin)
 	STACK_LIB_PATH+=ztsdk/lib/darwin.$(STACK_LIB)
 	ZTSDK_LIB_PATH+=ztsdk/lib/darwin.$(ZTSDK_LIB)
-	ZTSDK_INSTALL_DIR="/Users/Shared/cathode/"
-	ZTSDK_NETWORK_DIR=$(ZTSDK_INSTALL_DIR)networks.d/
+	CONFIG_INSTALL_DIR=/Users/Shared/cathode
+	ZTSDK_NETWORK_DIR=$(CONFIG_INSTALL_DIR)/networks.d
 endif
 ifeq ($(OSTYPE),Linux)
 	STACK_LIB_PATH=ztsdk/lib/linux.$(STACK_LIB)
 	ZTSDK_LIB_PATH=ztsdk/lib/linux.$(ZTSDK_LIB)
-	ZTSDK_INSTALL_DIR="/home/cathode/"
-	ZTSDK_NETWORK_DIR=$(ZTSDK_INSTALL_DIR)networks.d/
+	CONFIG_INSTALL_DIR=/home/cathode
+	ZTSDK_NETWORK_DIR=$(CONFIG_INSTALL_DIR)/networks.d
 endif
 
 CC=clang++
@@ -69,7 +71,11 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(wildcard $(INCDIR)/*.h) Makefile
 
 install:
 	mkdir -p $(ZTSDK_NETWORK_DIR)
-	cp -f $(ZT_INCLUDE)$(STACK_LIB) $(ZTSDK_INSTALL_DIR)$(STACK_LIB)
+	cp -f $(ZT_INCLUDE)$(STACK_LIB) $(CONFIG_INSTALL_DIR)/$(STACK_LIB)
+	cp -f cathode $(BIN_INSTALL_DIR)/cathode
+
+uninstall:
+	rm -rf $(CONFIG_INSTALL_DIR) $(BIN_INSTALL_DIR)/cathode
 
 # Copy libraries into correct dirs for build and runtime
 configure:
@@ -77,5 +83,7 @@ configure:
 	cp $(ZTSDK_LIB_PATH) $(ZT_INCLUDE)$(ZTSDK_LIB)
 
 clean:
+	rm -rf $(ZT_INCLUDE)$(STACK_LIB)
+	rm -rf $(ZT_INCLUDE)$(ZTSDK_LIB)
 	rm -rf $(OBJDIR) audio video cathode
 
