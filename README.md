@@ -50,8 +50,11 @@ Where `-v` is to enable video (as opposed to only audio)
 
 ## Build
 ### ZeroTierSDK Library
- - Get source from `https://github.com/zerotier/ZeroTierSDK`
- - `make osx_static_lib -j4 SDK_IPV6=1 SDK_PICOTCP=1`
+ - Get source from [here](https://github.com/zerotier/ZeroTierSDK)
+ - macOS:
+ 	- `make osx_static_lib SDK_IPV6=1 SDK_PICOTCP=1`
+ - linux:
+ 	- `make linux_static_lib SDK_IPV6=1 SDK_PICOTCP=1`
 
 ### Cathode
  - Copy `build/` contents from `ZeroTierSDK` into `cathode/zt/` under the correct system folder
