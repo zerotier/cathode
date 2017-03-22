@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
 
   // Print (or generate AND print) ZeroTier ID
   if(display_my_id) {
-    char myID[10];
+    char myID[16];
     int res = -1;
     // Attempt to read ZeroTier ID, if not present, generate new ID
     while(res < 0) {

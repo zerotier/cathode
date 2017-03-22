@@ -21,6 +21,7 @@ Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We thi
 
 - `make`
 - `make install`
+- `make uninstall`
 
 # Usage
 
@@ -30,9 +31,9 @@ Generate ID (or display a previously generated ID)
 
 If you have a friend's ZeroTier ID or ZeroTier IP address you can connect to them via:
 
-- `cathode -v -Z [id]`
-- `cathode -v -N [nwid] -R [id]`
-- `cathode -v -N [nwid] -S [ip-address]`
+- `cathode -Z [id] -v`
+- `cathode -N [nwid] -R [id] -v`
+- `cathode -N [nwid] -S [ip-address] -v`
 
 Where `-v` is to enable video (as opposed to only audio)
 
