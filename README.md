@@ -41,7 +41,18 @@ If you have a friend's ZeroTier ID or ZeroTier IP address you can connect to the
 
 Where `-v` is to enable video (as opposed to only audio)
 
+# Uninstall
+ - `make uninstall`
+
 # Build
+## ZeroTierSDK Library
+ - Get source from `https://github.com/zerotier/ZeroTierSDK`
+ - `make osx_static_lib -j4 SDK_IPV6=1 SDK_PICOTCP=1`
+
+## Cathode
+ - Copy `build/` contents from `ZeroTierSDK` into `cathode/zt/` under the correct system folder
+ - make
+ - make install
 
 ***
 
