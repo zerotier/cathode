@@ -17,11 +17,15 @@ Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We thi
 
 ***
 
-# Installation
+# Installation (from prebuilt binaries in `dist/`)
 
-- `make`
-- `make install`
-- `make uninstall`
+## macOS
+ - brew install portaudio opencv
+ - make install
+
+## linux
+ - yum install portaudio opencv
+ - make install
 
 # Usage
 
@@ -36,6 +40,8 @@ If you have a friend's ZeroTier ID or ZeroTier IP address you can connect to the
 - `cathode -N [nwid] -S [ip-address] -v`
 
 Where `-v` is to enable video (as opposed to only audio)
+
+# Build
 
 ***
 
