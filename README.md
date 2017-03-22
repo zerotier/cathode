@@ -17,46 +17,50 @@ Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We thi
 
 ***
 
-# Installation (from prebuilt binaries in `dist/`)
+## Installation (from prebuilt binaries in `dist/`)
 
-## macOS
+### macOS
  - brew install portaudio opencv
  - make install
 
-## linux
+### linux
  - yum install portaudio opencv
  - make install
 
-# Usage
+## Usage
 
 Generate ID (or display a previously generated ID)
 
 - `cathode -M`
 
+To view yourself:
+
+- `cathode -Z [your_id] -v`
+
 If you have a friend's ZeroTier ID or ZeroTier IP address you can connect to them via:
 
 - `cathode -Z [id] -v`
 - `cathode -N [nwid] -R [id] -v`
-- `cathode -N [nwid] -S [ip-address] -v`
+- `cathode -N [nwid] -S [zt-ipv6-address] -v`
 
 Where `-v` is to enable video (as opposed to only audio)
 
-# Uninstall
+## Uninstall
  - `make uninstall`
 
-# Build
-## ZeroTierSDK Library
+## Build
+### ZeroTierSDK Library
  - Get source from `https://github.com/zerotier/ZeroTierSDK`
  - `make osx_static_lib -j4 SDK_IPV6=1 SDK_PICOTCP=1`
 
-## Cathode
+### Cathode
  - Copy `build/` contents from `ZeroTierSDK` into `cathode/zt/` under the correct system folder
  - make
  - make install
 
 ***
 
-# Notes
+## Notes
 
 This app is meant to be a simple demonstration of how you can add ZeroTier to your application. In this example there's only about ten points where modifications to `p2pvc` were needed. Since we want all network traffic to be handled by ZeroTier we swapped out the system's native calls with our own. 
 
