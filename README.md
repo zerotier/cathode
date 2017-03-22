@@ -5,6 +5,7 @@
  / __|/ _` || __|| '_ \  / _ \  / _` | / _ \
 | (__| (_| || |_ | | | || (_) || (_| ||  __/
  \___|\__,_| \__||_| |_| \___/  \__,_| \___|
+ Now with ENCRYPTED PACKET technology!
 ```
 
 # cathode
@@ -62,6 +63,9 @@ Where `-v` is to enable video (as opposed to only audio)
  - make install
 
 ***
+
+## Security Implications
+There are two very distinct modes of operation here: one secure, one *not*. If you chat with a friend via `cathode -Z [id] -v` that will broadcast over a public ZeroTier ad-hoc network and anyone who has either ID can easily tune in and watch/listen to either of you. However, if you use `cathode -Z [nwid] ...` this limits your traffic to only participants of the network you've created or joined. 
 
 ## Notes
 

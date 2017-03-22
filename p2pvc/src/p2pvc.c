@@ -198,8 +198,8 @@ int main(int argc, char **argv) {
         exit(0);
       }
       else {
-        fprintf(stderr, "Generating new identity...\n");
         fprintf(stderr, "Configs will be stored in: %s\n", home_path.c_str());
+        fprintf(stderr, "Generating new cryptographic identity. Please wait...\n");
         // An identity couldn't be found, we will now generate one for you
         join_adhoc = 1;
         nwid = "ff00000000000000";
