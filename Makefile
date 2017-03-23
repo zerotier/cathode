@@ -1,9 +1,7 @@
 OSTYPE=$(shell uname -s)
 
 ZT_INCLUDE_DIR=zt/
-
-CONFIG_INSTALL_DIR=/var/lib/ztsdk
-BIN_INSTALL_DIR=/usr/local/bin
+CONFIG_INSTALL_DIR=$(HOME)/cathode
 
 STACK_LIB=libpicotcp.so
 STACK_LIB_PATH=
@@ -11,17 +9,17 @@ ZTSDK_LIB=libzt.a
 ZTSDK_LIB_PATH=
 
 ifeq ($(OSTYPE),Darwin)
+	BIN_INSTALL_DIR=/usr/local/bin
 	BUILD_OUTPUT_DIR=build/macOS
 	LIB_DIST=zt/macOS
 	BIN_DIST=dist/macOS
-	CONFIG_INSTALL_DIR=/Users/Shared/cathode
 	ZTSDK_NETWORK_DIR=$(CONFIG_INSTALL_DIR)/networks.d
 endif
 ifeq ($(OSTYPE),Linux)
+	BIN_INSTALL_DIR=$(HOME)/bin
 	BUILD_OUTPUT_DIR=build/linux
 	LIB_DIST=zt/linux
 	BIN_DIST=dist/linux/
-	CONFIG_INSTALL_DIR=$(HOME)/cathode
 	ZTSDK_NETWORK_DIR=$(CONFIG_INSTALL_DIR)/networks.d
 endif
 
@@ -35,7 +33,6 @@ ifneq ("$(wildcard $(BUILD_OUTPUT_DIR)/cathode)","")
 else
     INSTALL_BIN_SOURCE=$(BIN_DIST)
 endif
-
 
 CC=clang++
 OBJDIR=objs
@@ -86,8 +83,8 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(wildcard $(INCDIR)/*.h) Makefile
 	$(CC) $(CFLAGS) $< -c -o $@
 
 install:
-	echo "SOURCE = "$(INSTALL_BIN_SOURCE)
 	mkdir -p $(ZTSDK_NETWORK_DIR)
+	mkdir -p $(BIN_INSTALL_DIR)
 	cp -f $(STACK_LIB_PATH) $(CONFIG_INSTALL_DIR)/$(STACK_LIB)
 	cp -f $(INSTALL_BIN_SOURCE)/cathode $(BIN_INSTALL_DIR)/cathode
 
