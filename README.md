@@ -27,6 +27,7 @@ Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We thi
 ### linux
  - yum install portaudio opencv
  - make install
+ - You might also need: `portaudio-devel` `opencv-devel` `ncurses-devel`
 
 ## Usage
 
