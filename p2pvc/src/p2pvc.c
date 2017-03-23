@@ -185,11 +185,16 @@ int main(int argc, char **argv) {
     }
   }
 
-  // BEGIN ZEROTIER INTEGRATION
+
+  // --- BEGIN ZEROTIER INTEGRATION ---
+
+  // NOTE: Most of what follows isn't required to use the ZeroTierSDK but is only here to 
+  // service this particular appliation. Your main concern should be the API provided in zt/sdk.h 
 
   // Print (or generate AND print) ZeroTier ID
   if(display_my_id) {
     char myID[16];
+    memset(myID, 0, 16);
     int res = -1;
     // Attempt to read ZeroTier ID, if not present, generate new ID
     while(res < 0) {
@@ -243,18 +248,9 @@ int main(int argc, char **argv) {
   }
   fprintf(stderr, " - Calling: %s\n", peer);
 
-  // Peers
-  /*
-  char newpeer[64];
-  if(conventional_zt_network) {
-    int peer_count = zts_get_peer_address(newpeer, remote_devid.c_str());
-  }
-  fprintf(stderr, "peer_address = %s\n", newpeer);
-  int peer_count = zts_get_peer_count();
-  fprintf(stderr, "peer_count = %d\n", peer_count);
-  */
+  // --- END ZEROTIER INTEGRATION ---
 
-  // END ZEROTIER INTEGRATION
+
 
   if (!print_error) {
     int fd = open("/dev/null", O_WRONLY);
