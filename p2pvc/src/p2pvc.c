@@ -12,18 +12,17 @@
 #include <audio.h>
 #include <video.h>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
 #define DEFAULT_WIDTH 100
 #define DEFAULT_HEIGHT 40
 
 // ZeroTier SDK
 #include "sdk.h"
 
-#ifdef __linux__
-  std::string home_path = "/home/cathode";
-#else
-  std::string home_path = "/Users/Shared/cathode";
-#endif
-
+std::string home_path;
 char *default_adhoc_port = (char*)"7878"; // totally arbitrary
 
 typedef struct {
@@ -47,6 +46,15 @@ void all_shutdown(int signal) {
   audio_shutdown(signal);
   kill(getpid(), SIGKILL);
   exit(0);
+}
+
+// Find where we want to put the config files
+void get_config_install_path()
+{
+  struct passwd *pw = getpwuid(getuid());
+  const char *homedir = pw->pw_dir;
+  home_path += homedir;
+  home_path += "/cathode";
 }
 
 void usage(FILE *stream) {
@@ -190,6 +198,8 @@ int main(int argc, char **argv) {
 
   // NOTE: Most of what follows isn't required to use the ZeroTierSDK but is only here to 
   // service this particular appliation. Your main concern should be the API provided in zt/sdk.h 
+
+  get_config_install_path(); // Where ZeroTier's files are kept
 
   // Print (or generate AND print) ZeroTier ID
   if(display_my_id) {
