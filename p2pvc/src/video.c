@@ -42,10 +42,10 @@ static void callback(connection_t *con, void *data, size_t length) {
   }
   
   // Print ZT watermark and ZT device IDs
-  char logostr[LOGO_BUFLEN];
-  memset(logostr, 0, LOGO_BUFLEN);
-  sprintf(logostr, "Connection made possible with ZeroTier");
-  write_bandwidth(contact_str, strlen(contact_str), width, height);
+  char watermark_str[LOGO_BUFLEN];
+  memset(watermark_str, 0, LOGO_BUFLEN);
+  sprintf(watermark_str, "Connection made possible with ZeroTier");
+  write_bandwidth(watermark_str, strlen(watermark_str), width, height);
 
   /*
   // TODO
