@@ -21,7 +21,7 @@ ifeq ($(OSTYPE),Linux)
 	BUILD_OUTPUT_DIR=build/linux
 	LIB_DIST=zt/linux
 	BIN_DIST=dist/linux/
-	CONFIG_INSTALL_DIR=$HOME/cathode
+	CONFIG_INSTALL_DIR=$(HOME)/cathode
 	ZTSDK_NETWORK_DIR=$(CONFIG_INSTALL_DIR)/networks.d
 endif
 
