@@ -23,6 +23,13 @@ ifeq ($(OSTYPE),Linux)
 	ZTSDK_NETWORK_DIR=$(CONFIG_INSTALL_DIR)/networks.d
 endif
 
+
+# If root
+ifeq ($(shell id -g),0)
+	BIN_INSTALL_DIR=/usr/sbin
+endif
+
+
 ZTSDKLIB=-L$(LIB_DIST) -lzt
 STACK_LIB_PATH+=$(LIB_DIST)/$(STACK_LIB)
 ZTSDK_LIB_PATH+=$(LIB_DIST)/$(ZTSDK_LIB)
@@ -43,7 +50,7 @@ platform=$(shell uname -s)
 SRCS=$(wildcard $(SRCDIR)/*.c)
 OBJS=$(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
-CFLAGS+=-O2 -Wall
+CFLAGS+=-O2 -Wall -g
 
 ifeq ($(platform), Linux)
 	CFLAGS+=-DPA_USE_ALSA
@@ -83,10 +90,12 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(wildcard $(INCDIR)/*.h) Makefile
 	$(CC) $(CFLAGS) $< -c -o $@
 
 install:
-	mkdir -p $(ZTSDK_NETWORK_DIR)
-	mkdir -p $(BIN_INSTALL_DIR)
-	cp -f $(STACK_LIB_PATH) $(CONFIG_INSTALL_DIR)/$(STACK_LIB)
-	cp -f $(INSTALL_BIN_SOURCE)/cathode $(BIN_INSTALL_DIR)/cathode
+	@mkdir -p $(ZTSDK_NETWORK_DIR)
+	@mkdir -p $(BIN_INSTALL_DIR)
+	@cp -f $(STACK_LIB_PATH) $(CONFIG_INSTALL_DIR)/$(STACK_LIB)
+	@cp -f $(INSTALL_BIN_SOURCE)/cathode $(BIN_INSTALL_DIR)/cathode
+	@echo " - configuration files will be written to: " $(CONFIG_INSTALL_DIR)
+	@echo " - cathode installed as: " $(BIN_INSTALL_DIR)/cathode
 
 uninstall:
 	rm -rf $(CONFIG_INSTALL_DIR) $(BIN_INSTALL_DIR)/cathode
