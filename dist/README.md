@@ -1,1 +1,0 @@
-Binary distributions for cathode. This is and its required library `zt/$(SYSTEM)/libpicotcp.so` are installed via `make install`

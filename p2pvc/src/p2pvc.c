@@ -15,12 +15,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <arpa/inet.h>
 
 #define DEFAULT_WIDTH 100
 #define DEFAULT_HEIGHT 40
 
-// ZeroTier SDK
-#include "sdk.h"
+#include "libzt.h"
 
 std::string home_path;
 char *default_adhoc_port = (char*)"7878"; // totally arbitrary
@@ -109,8 +109,9 @@ int main(int argc, char **argv) {
   vopt.refresh_rate = 20;
   vopt.saturation = -1.0;
 
+  uint64_t nwid;
   std::string padding = "";
-  std::string nwid = "";
+  std::string nwidstr = "";
   std::string remote_devid;
   int join_adhoc = 0, display_my_id = 0, call_remote_id = 0, call_remote_ip = 0, conventional_zt_network = 0;
 
@@ -129,7 +130,7 @@ int main(int argc, char **argv) {
         display_my_id = 1;
         break;
       case 'N':
-        nwid = optarg;
+        nwidstr = optarg;
         conventional_zt_network = 1;
         break;
       case 'R':
@@ -196,20 +197,17 @@ int main(int argc, char **argv) {
 
   // --- BEGIN ZEROTIER INTEGRATION ---
 
-  // NOTE: Most of what follows isn't required to use the ZeroTierSDK but is only here to 
-  // service this particular appliation. Your main concern should be the API provided in zt/sdk.h 
-
   get_config_install_path(); // Where ZeroTier's files are kept
 
   // Print (or generate AND print) ZeroTier ID
   if(display_my_id) {
     char myID[16];
     memset(myID, 0, 16);
-    int res = -1;
+    uint64_t res = 0;
     // Attempt to read ZeroTier ID, if not present, generate new ID
-    while(res < 0) {
-      if((res = zts_get_device_id_from_file(home_path.c_str(), myID)) >= 0) {
-        fprintf(stderr, "You are %s\n", myID);
+    while(res <= 0) {
+      if((res = zts_get_node_id_from_file(home_path.c_str())) > 0) {
+        fprintf(stderr, "You are %llx\n", res);
         exit(0);
       }
       else {
@@ -217,10 +215,10 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Generating new cryptographic identity. Please wait...\n");
         // An identity couldn't be found, we will now generate one for you
         join_adhoc = 1;
-        nwid = "ff00000000000000";
-        zts_init_rpc(home_path.c_str(),nwid.c_str());
-        zts_stop_service();
-        zts_leave_network_soft(home_path.c_str(), "ff00000000000000");
+        nwid = 0xff00000000000000;
+        zts_startjoin(home_path.c_str(),nwid);
+        zts_leave(0xff00000000000000);
+        zts_stop();
       } 
     }
     exit(0);
@@ -239,8 +237,8 @@ int main(int argc, char **argv) {
     // Where SSSS = start port
     //       EEEE =   end port
     padding = padding+video_port; // SSSS
-    nwid = "ff" + padding + padding + "000000"; // ff + SSSS + EEEE + 000000
-    fprintf(stderr, " - Joining ad-hoc 6PLANE ZeroTier network: %s\n", nwid.c_str());
+    nwidstr = "ff" + padding + padding + "000000"; // ff + SSSS + EEEE + 000000
+    fprintf(stderr, " - Joining ad-hoc 6PLANE ZeroTier network: %llx\n", nwid);
   }
 
   // Start the ZeroTier background service
@@ -249,14 +247,23 @@ int main(int argc, char **argv) {
   //
   // For this particular use case of ZeroTier we don't use a tranditional TAP driver but
   // instead run everything through a user-mode TCP/IP stack in libpicotcp.so 
-  fprintf(stderr, " - Starting ZeroTier (home_path=%s, nwid=%s)\n", home_path.c_str(), nwid.c_str());
-  zts_init_rpc(home_path.c_str(),nwid.c_str());
+  nwid = strtoull(argv[2],NULL,16);
+  fprintf(stderr, " - Starting ZeroTier (path=%s, nwid=%llx)\n", home_path.c_str(), nwid);
+  zts_startjoin(home_path.c_str(),nwid);
 
   if(call_remote_id) {
     // Generate 6PLANE IPv6 address for remote based on given <devID>
-    zts_get_6plane_addr(peer, nwid.c_str(), remote_devid.c_str());
+    struct sockaddr_storage sixplane_addr;
+    uint64_t peer_id = strtoull(peer,NULL,16);
+    zts_get_6plane_addr(&sixplane_addr, nwid, peer_id);
+
+    char peer_addrstr[INET6_ADDRSTRLEN];
+    struct sockaddr_in6 *p6 = (struct sockaddr_in6*)&sixplane_addr;
+    inet_ntop(AF_INET6, &(p6->sin6_addr), peer_addrstr, INET6_ADDRSTRLEN);
+    fprintf(stderr, "6plane_addr=%s", peer_addrstr);
   }
   fprintf(stderr, " - Calling: %s\n", peer);
+  exit(-1);
 
   // --- END ZEROTIER INTEGRATION ---
 

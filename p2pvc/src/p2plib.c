@@ -15,8 +15,9 @@
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 
-#include "sdk.h"
+#include "libzt.h"
 
 #define UDP_FLAGS         0
 #define BANDWIDTH_BUFLEN  1024
@@ -106,6 +107,22 @@ int p2p_connect(char *server_name, char *server_port, connection_t *con) {
   return 0;
 }
 
+void create_addr(char *ipstr, int port, int ipv, struct sockaddr *saddr) {
+  if(ipv == 4) {
+    struct sockaddr_in *in4 = (struct sockaddr_in*)saddr;
+    in4->sin_port = htons(port);
+    in4->sin_addr.s_addr = inet_addr(ipstr);
+    in4->sin_family = AF_INET;
+  }
+  if(ipv == 6) {
+    struct sockaddr_in6 *in6 = (struct sockaddr_in6*)saddr;
+    inet_pton(AF_INET6, ipstr, &(in6->sin6_addr));
+    in6->sin6_flowinfo = 0;
+    in6->sin6_family = AF_INET6;
+    in6->sin6_port = htons(port);
+  }
+}
+
 /* @brief Create a server that can cold up to max_connections.
  * @param port The port to initialize on.
  * @param sockfd A reference to populate once the socket is initialized.
@@ -134,11 +151,13 @@ int p2p_init(int port, int *sockfd) {
 
   struct sockaddr_in6 serv_addr;
   struct hostent *server; 
-  server = gethostbyname2("::",AF_INET6);
+  server = gethostbyname2("fc87:7878:787b:5b48:130b:0000:0000:0001",AF_INET6);
   memset((char *) &serv_addr, 0, sizeof(serv_addr));
   serv_addr.sin6_flowinfo = 0;
   serv_addr.sin6_family = AF_INET6;
   memmove((char *) &me.sin6_addr.s6_addr, (char *)server->h_addr, server->h_length);
+
+  create_addr("fc87:7878:7806:6c90:898d::1", port, 6, (struct sockaddr*)&me);
 
   if (zts_bind(_sockfd_local, (struct sockaddr *)&me, sizeof(me)) == -1) {
     fprintf(stderr, "error in binding socket: %s\n", strerror(errno));
