@@ -18,6 +18,10 @@ Hint: Use the [Glass TTY VT220](Glass_TTY_VT220.ttf) font we've included. We thi
 
 ***
 
+```
+git submodule update --init --recursive
+```
+
 ### macOS
 
 ```

@@ -70,8 +70,6 @@ all: cathode
 debug: CC := $(CC) $(CFLAGS_DEBUG)
 debug: clean cathode
 
-
-
 $(OBJS): | $(OBJDIR)
 $(OBJDIR):
 	mkdir -p $@
@@ -83,8 +81,6 @@ cathode: $(OBJS)
 	mkdir -p $(BUILD_OUTPUT_DIR)
 	$(CC) $(CFLAGS) $^ -o $(BUILD_OUTPUT_DIR)/$@ $(LDFLAGS) $(LIBS)
 
-
-
 video: CFLAGS := $(CFLAGS) -DVIDEOONLY
 video: $(filter-out objs/cathode.o, $(OBJS))
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -92,8 +88,6 @@ video: $(filter-out objs/cathode.o, $(OBJS))
 audio: CFLAGS := $(CFLAGS) -DAUDIOONLY
 audio: $(filter-out objs/cathode.o, $(OBJS))
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-
-
 
 install:
 	@mkdir -p $(ZTSDK_NETWORK_DIR)
